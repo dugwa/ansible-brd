@@ -1,0 +1,7 @@
+---
+
+hostname: "ansible.test"
+
+ip: "192.168.60.3"
+
+memory: 1024

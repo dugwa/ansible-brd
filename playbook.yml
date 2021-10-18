@@ -1,0 +1,28 @@
+---
+
+- hosts: all
+  become: yes
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600 # update apt cache if its more than an hour since last update
+
+  tasks:
+    - name: add repository
+      apt_repository:
+        repo: ppa:ansible/ansible
+
+    - name: install necessary packages
+      apt:
+        state: present
+        name:
+          - python-pip
+          - python-dev
+          - ansible
+          - jq
+
+
+
+
