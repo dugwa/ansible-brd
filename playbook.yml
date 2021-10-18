@@ -23,6 +23,13 @@
           - ansible
           - jq
 
+    - name: install python librairies
+      pip:
+        name:
+          - requests
+          - boto3
+        executable: pip2
+
 
 
 

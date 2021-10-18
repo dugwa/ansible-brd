@@ -1,0 +1,10 @@
+---
+# vars file for litecoin-backup
+
+litecoin_data_dir: /root/.litecoin
+
+litecoin_backup_dir: /opt/litecoin-fullnode-backup/
+
+spaces_endpoint: https://nyc3.digitaloceanspaces.com
+
+space_name: litecoinfullnodebackup
