@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # General Vagrant VM configuration.
   config.ssh.insert_key = false
   config.vm.provider :virtualbox do |v|
-    v.memory = seetings['memory']
+    v.memory = settings['memory']
     v.linked_clone = true
   end
 
