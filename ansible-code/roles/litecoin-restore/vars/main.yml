@@ -1,0 +1,45 @@
+---
+# vars file for litecoin-restore
+
+litecoin_data_dir: /root/.litecoin
+
+litecoin_backup_dir: /opt/litecoin-fullnode-backup/
+
+spaces_endpoint: https://nyc3.digitaloceanspaces.com
+
+space_name: litecoinfullnodebackup
+
+pre_requiste_packages:
+  - jq
+  - build-essential
+  - libtool
+  - autotools-dev
+  - automake
+  - pkg-config
+  - libssl-dev
+  - libevent-dev
+  - bsdmainutils
+  - libboost-system-dev
+  - libboost-filesystem-dev
+  - libboost-chrono-dev
+  - libboost-test-dev
+  - libboost-thread-dev
+  - libminiupnpc-dev
+  - python3-pip
+
+####################################################
+# Litecoin confgirations
+####################################################
+litecoin_download_url: https://download.litecoin.org
+
+litecoin_core_version: 0.18.1
+
+litecoin_data_dir: /root/.litecoin
+
+litecoin_config_file: /root/.litecoin/litecoin.conf
+
+litecoin_pid_file: /run/litecoind.pid
+
+litecoin_user: root
+
+litecoin_core_checksum: sha256:ca50936299e2c5a66b954c266dcaaeef9e91b2f5307069b9894048acf3eb5751

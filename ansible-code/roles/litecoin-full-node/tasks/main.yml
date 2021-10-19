@@ -1,0 +1,23 @@
+---
+# tasks file for litecoin-full-node
+
+- name: Install necessary packages
+  apt:
+    name: "{{ pre_requiste_packages }}"
+    state: present
+
+- name: Download Litecoin core
+  get_url:
+    url: "{{ litecoin_download_url }}/litecoin-{{ litecoin_core_version }}/linux/litecoin-{{ litecoin_core_version }}-x86_64-linux-gnu.tar.gz"
+    dest: /opt
+    checksum: "{{ litecoin_core_checksum }}"
+
+- name: Untar Litecoin Core
+  unarchive:
+    src: "/opt/litecoin-{{ litecoin_core_version }}-x86_64-linux-gnu.tar.gz"
+    dest: /opt
+    remote_src: true
+    creates: "/opt/litecoin-{{ litecoin_core_version }}/bin/litecoind"
+
+
+- include_tasks: configure_litecoin.yml

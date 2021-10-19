@@ -1,0 +1,12 @@
+---
+# handlers file for litecoin-restore
+
+- name: reload litecoind
+  command: |
+    systemctl daemon-reload
+  notify: restart litecoind
+
+- name: restart litecoind
+  service:
+    name: litecoind.service
+    state: restarted

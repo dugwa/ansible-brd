@@ -1,0 +1,45 @@
+---
+# tasks file for litecoin-backup
+
+
+- name: create Litecoin backup directory
+  file:
+    path: "{{ litecoin_backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: backup Litecoin data directory
+  archive:
+    path: "{{ litecoin_data_dir }}"
+    dest: "{{ litecoin_backup_dir }}/{{ inventory_hostname }}-{{ date }}.tgz"
+
+- name: install necessary python libraries needed to talk to Spaces
+  pip:
+    name:
+      - botocore
+      - boto3
+    executable: pip3
+
+- name: create bucket
+  aws_s3:
+    aws_access_key: "{{ spaces_access_key }}"
+    aws_secret_key: "{{ spaces_secret_key }}"
+    bucket: "{{ space_name }}"
+    s3_url: "{{ spaces_endpoint }}"
+    mode: create
+    rgw: true
+
+# copy over backup to DO Spaces
+
+- name: upload litecoin backup to spaces
+  aws_s3:
+    aws_access_key: "{{ spaces_access_key }}"
+    aws_secret_key: "{{ spaces_secret_key }}"
+    s3_url: "{{ spaces_endpoint }}"
+    bucket: "{{ space_name }}"
+    object: "backups/fullnode-{{ date }}.tgz"
+    src: "{{ litecoin_backup_dir }}/{{ inventory_hostname }}-{{ date }}.tgz"
+    mode: put
+    encrypt: false
+    rgw: true

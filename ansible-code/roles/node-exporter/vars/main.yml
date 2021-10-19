@@ -1,0 +1,10 @@
+---
+# vars file for node-exporter
+
+node_exporter_version: 1.2.2
+
+node_exporter_url: https://github.com/prometheus/node_exporter/releases/download
+
+node_exporter__checksum: sha256:344bd4c0bbd66ff78f14486ec48b89c248139cdd485e992583ea30e89e0e5390
+
+nodeexporter_pid_file: /run/nodeexporter.pid

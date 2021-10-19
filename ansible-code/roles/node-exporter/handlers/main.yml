@@ -1,0 +1,12 @@
+---
+# handlers file for node-exporter
+
+- name: reload nodeexporter
+  command: |
+    systemctl daemon-reload
+  notify: restart nodeexporter
+
+- name: restart nodeexporter
+  service:
+    name: nodeexporter.service
+    state: restarted

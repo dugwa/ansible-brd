@@ -1,0 +1,74 @@
+---
+
+- hosts: localhost
+
+  connection: local
+
+  gather_facts: False
+
+  vars:
+    image: 93525508 # 20.04 (LTS) x64
+    size: s-8vcpu-16gb
+    ssh_key_id: 31938643
+    tags:
+      - litecoin-restore
+    region: nyc3
+    machine_name:
+      - name: litecoin-restore-1
+      - name: litecoin-restore-2
+      - name: litecoin-restore-3
+    number_of_replicas: 3
+
+  tasks:
+    - name: Create new Droplet.
+      digital_ocean_droplet:
+        state: present
+        name: "{{ item.name }}"
+        ssh_keys:
+          - "{{ ssh_key_id }}" # you may need to add your own ssh-key id (https://docs.digitalocean.com/reference/api/api-reference/#tag/SSH-Keys)
+        size: "{{ size }}"
+        region: "{{ region }}"
+        image: "{{ image }}"
+        tags: "{{ tags }}"
+        unique_name: yes
+        wait_timeout: 500
+      register: my_droplet
+      with_items: "{{ machine_name }}"
+
+    - name: Add new host to our inventory.
+      add_host:
+        name: "{{ item.data.ip_address }}"
+        groups: litecoin-restore
+      when: my_droplet.results[0].data is defined
+      changed_when: False
+      with_items:
+        - "{{ my_droplet.results }}"
+
+    - name: Wait for ssh availabilty on litecoin-restore
+      wait_for:
+        port: 22
+        host: "{{ item.data.ip_address }}"
+        search_regex: OpenSSH
+        timeout: 300
+        delay: 20
+        state: started
+      connection: local
+      with_items:
+        - "{{ my_droplet.results }}"
+
+- hosts: litecoin-restore
+  become: yes
+  remote_user: root
+  gather_facts: no
+
+  vars:
+    ansible_ssh_private_key_file: .private_key
+    ansible_python_interpreter: /usr/bin/python3
+    date: "{{ lookup('pipe', 'date +%Y%m%d') }}"
+    spaces_access_key: "{{ lookup('env','SPACES_ACCESS_KEY') }}"
+    spaces_secret_key: "{{ lookup('env','SPACES_SECRET_KEY') }}"
+
+  roles:
+    - node-exporter
+    - litecoin-restore
+

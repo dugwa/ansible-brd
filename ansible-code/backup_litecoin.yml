@@ -1,0 +1,16 @@
+---
+
+- hosts: litecoin-full-node
+  become: yes
+  remote_user: root
+  gather_facts: no
+
+  vars:
+    ansible_ssh_private_key_file: .private_key
+    ansible_python_interpreter: /usr/bin/python3
+    date: "{{ lookup('pipe', 'date +%Y%m%d') }}"
+    spaces_access_key: "{{ lookup('env','SPACES_ACCESS_KEY') }}"
+    spaces_secret_key: "{{ lookup('env','SPACES_SECRET_KEY') }}"
+
+  roles:
+    - litecoin-backup

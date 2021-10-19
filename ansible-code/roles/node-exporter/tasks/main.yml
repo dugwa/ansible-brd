@@ -1,0 +1,24 @@
+---
+# tasks file for node-exporter
+
+- name: download node exporter binary
+  get_url:
+    url: "{{ node_exporter_url }}/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    dest: "/opt/node-exporter-{{ node_exporter_version }}.tgz"
+    checksum: "{{ node_exporter__checksum }}"
+
+- name: Untar node exporter
+  unarchive:
+    src: "/opt/node-exporter-{{ node_exporter_version }}.tgz"
+    dest: /opt
+    remote_src: true
+    creates: "/opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+
+- name: copy node_exporter binary to PATH
+  copy:
+    src: "/opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+    dest: /usr/local/bin/node_exporter
+    remote_src: yes
+    mode: 0755
+
+- include_tasks: configure.yml

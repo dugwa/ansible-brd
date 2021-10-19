@@ -6,42 +6,57 @@
 
   gather_facts: False
 
+  vars:
+    image: 93525508 # 20.04 (LTS) x64
+    size: s-8vcpu-16gb
+    ssh_key_id: 31938643
+    tags:
+      - litecoin-full-node
+    region: nyc3
+    machine_name: litecoin-full-node
+
   tasks:
     - name: Create new Droplet.
       digital_ocean_droplet:
         state: present
-        name: mydroplet
+        name: "{{ machine_name }}"
         ssh_keys:
-          - 31935321 # curl --silent "https://api.digitalocean.com/v2/account/keys" -H "Authorization: Bearer $DO_API_TOKEN" |jq
-        size: s-1vcpu-1gb # curl --silent "https://api.digitalocean.com/v2/sizes" -H "Authorization: Bearer $DO_API_TOKEN"
-        region: lon1
-        image: centos-7-x64 # 49528765 # curl --silent "https://api.digitalocean.com/v2/images?per_page=999" -H "Authorization: Bearer $DO_API_TOKEN" |jq '.images'
+          - "{{ ssh_key_id }}" # you may need to add your own ssh-key id (https://docs.digitalocean.com/reference/api/api-reference/#tag/SSH-Keys)
+        size: "{{ size }}"
+        region: "{{ region }}"
+        image: "{{ image }}"
+        tags: "{{ tags }}"
+        unique_name: yes
         wait_timeout: 500
       register: my_droplet
-
-    - debug:
-        msg:
-          - "Droplet ID is {{ my_droplet.data.droplet.id }}, Droplet IP is {{ my_droplet.data.ip_address }}"
 
     - name: Add new host to our inventory.
       add_host:
         name: "{{ my_droplet.data.ip_address }}"
-        groups: do
+        groups: "{{ machine_name }}"
       when: my_droplet.data.droplet is defined
       changed_when: False
 
-- hosts: do
-  gather_facts: no
+- hosts: litecoin-full-node
   become: yes
+  remote_user: root
+  gather_facts: no
 
-  tasks:
-    - name: Wait for port 22 to become available.
-      local_action:
-        module: wait_for
+  vars:
+    ansible_ssh_private_key_file: .private_key
+    ansible_python_interpreter: /usr/bin/python3
+
+  pre_tasks:
+    - name: Wait for ssh availabilty on litecoin-full-node .
+      wait_for:
         port: 22
         host: "{{ inventory_hostname }}"
-    - name: Install tcpdump.
-      yum:
-        name: tcpdump
-        state: present
-      remote_user: centos
+        search_regex: OpenSSH
+        timeout: 300
+        delay: 20
+        state: started
+      connection: local
+
+  roles:
+    - litecoin-full-node
+    - node-exporter

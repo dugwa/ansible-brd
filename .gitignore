@@ -16,4 +16,8 @@ _tmp/*
 
 *.log
 
+*.private_key
+*.log
+*.cache
+
 notes

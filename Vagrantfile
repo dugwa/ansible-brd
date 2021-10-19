@@ -17,7 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Ansible Machine
   config.vm.define "ansible" do |vb|
-    vb.vm.synced_folder "./ansible-code", "/ansible"
+    vb.vm.synced_folder "./ansible-code", "/ansible-litecoin"
     vb.vm.hostname = settings['hostname']
     vb.vm.network :private_network, ip: settings['ip']
     vb.vm.box = "ubuntu/bionic64"

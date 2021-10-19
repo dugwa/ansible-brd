@@ -1,0 +1,43 @@
+---
+# tasks file for litecoin-restore
+
+- name: Install necessary packages
+  apt:
+    name: "{{ pre_requiste_packages }}"
+    state: present
+
+- name: install necessary python libraries needed to talk to Spaces
+  pip:
+    name:
+      - botocore
+      - boto3
+    executable: pip3
+
+
+- name: create Litecoin backup directory
+  file:
+    path: "{{ litecoin_backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: download litecoin backup tarball
+  aws_s3:
+    aws_access_key: "{{ spaces_access_key }}"
+    aws_secret_key: "{{ spaces_secret_key }}"
+    s3_url: "{{ spaces_endpoint }}"
+    bucket: "{{ space_name }}"
+    object: "backups/fullnode-{{ date }}.tgz"
+    dest: "{{ litecoin_backup_dir }}/{{ inventory_hostname }}-{{ date }}.tgz"
+    mode: get
+    encrypt: false
+    rgw: true
+
+- name: unarchive the backup
+  unarchive:
+    src: "{{ litecoin_backup_dir }}/{{ inventory_hostname }}-{{ date }}.tgz"
+    dest: /root
+    remote_src: true
+    creates: /root/.litecoin/peers.dat
+
+- include_tasks: configure_litecoin.yml

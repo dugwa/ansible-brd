@@ -1,0 +1,51 @@
+---
+
+- name: Download Litecoin core
+  get_url:
+    url: "{{ litecoin_download_url }}/litecoin-{{ litecoin_core_version }}/linux/litecoin-{{ litecoin_core_version }}-x86_64-linux-gnu.tar.gz"
+    dest: /opt
+    checksum: "{{ litecoin_core_checksum }}"
+
+- name: Untar Litecoin Core
+  unarchive:
+    src: "/opt/litecoin-{{ litecoin_core_version }}-x86_64-linux-gnu.tar.gz"
+    dest: /opt
+    remote_src: true
+    creates: "/opt/litecoin-{{ litecoin_core_version }}/bin/litecoind"
+
+- name: install Litecoin Core
+  shell:
+    cmd: |
+      install -m 0755 -o {{ litecoin_user }} -g {{ litecoin_user }} -t /usr/local/bin /opt/litecoin-{{ litecoin_core_version }}/bin/*
+    creates: /usr/local/bin/litecoind
+
+- name: create litecoin systemd file
+  template:
+    src: templates/litecoin-systemd.conf.j2
+    dest: /lib/systemd/system/litecoind.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload litecoind
+
+- name: Create a symbolic link for litecoin service
+  ansible.builtin.file:
+    src: /lib/systemd/system/litecoind.service
+    dest: /etc/systemd/system/litecoind.service
+    owner: root
+    group: root
+    state: link
+
+- name: check the status of litecoind service
+  command: |
+    systemctl status litecoind.service
+  register: litecoind_service_status
+  ignore_errors: yes
+
+- name: Start Linecoin
+  service:
+    name: litecoind.service
+    state: started
+    enabled: yes
+  when: litecoind_service_status.rc != 0

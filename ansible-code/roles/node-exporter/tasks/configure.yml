@@ -1,0 +1,34 @@
+---
+
+- name: create node_exporter systemd file
+  template:
+    src: templates/systemd.conf.j2
+    dest: /lib/systemd/system/nodeexporter.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload nodeexporter
+
+- name: Create a symbolic link for node_exporter service
+  ansible.builtin.file:
+    src: /lib/systemd/system/nodeexporter.service
+    dest: /etc/systemd/system/nodeexporter.service
+    owner: root
+    group: root
+    state: link
+
+- name: check the status of node_exporter service
+  command: |
+    systemctl status nodeexporter.service
+  register: nodeexporter_service_status
+  ignore_errors: yes
+  changed_when: false
+
+- name: start node_exporter
+  service:
+    name: nodeexporter.service
+    state: started
+    enabled: yes
+  when: nodeexporter_service_status.rc != 0
+
