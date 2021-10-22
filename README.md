@@ -109,7 +109,7 @@ This playbook will backup the litecoin data directory and copy it over to Digita
 # Restore Litecoin
 In order to deploy additional litecoin nodes, it makes sense to save some time by deploying from an already existing backup.
 
-If you do not restore from a backup, then you will have to re-download the full copy of the Litecoin chain which is roughly about 20GB.
+If you do not restore from a backup, then you will have to re-download the full copy of the Litecoin chain which is roughly about 64GB.
 
 Run the following ansible playbook commands to deploy three additional nodes and restore from the backup that we have uploaded into spaces.
 
